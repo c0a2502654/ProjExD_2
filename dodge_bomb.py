@@ -2,6 +2,7 @@ import os
 import random
 import sys
 import pygame as pg
+import time
 
 
 WIDTH, HEIGHT = 1100, 650
@@ -30,6 +31,32 @@ def check_bound(rct: pg.Rect) -> tuple[bool, bool]:
     return yoko, tate
 
 
+def gameover(screen: pg.Surface) -> None:
+
+    go_img = pg.Surface((WIDTH, HEIGHT)) 
+    pg.draw.rect(go_img, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
+    go_img.set_alpha(150)
+    
+    fonto = pg.font.Font(None, 80)
+    txt = fonto.render("Game Over", True, (255, 255, 255))
+    txt_rct = txt.get_rect()
+    txt_rct.center = (WIDTH / 2, HEIGHT / 2)
+    go_img.blit(txt, txt_rct)
+    
+    kk_sad_img = pg.image.load("fig/8.png")
+    kk_sad_rct_1 = kk_sad_img.get_rect()
+    kk_sad_rct_1.center = (WIDTH / 2 - 200, HEIGHT / 2)
+    kk_sad_rct_2 = kk_sad_img.get_rect()
+    kk_sad_rct_2.center = (WIDTH / 2 + 200, HEIGHT / 2)
+    go_img.blit(kk_sad_img, kk_sad_rct_1)
+    go_img.blit(kk_sad_img, kk_sad_rct_2)
+    
+    screen.blit(go_img, [0, 0])
+    pg.display.update()
+    
+    time.sleep(5)
+    
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -54,19 +81,13 @@ def main():
                 return
         
         if kk_rct.colliderect(bb_rct): # 衝突判定
+            gameover(screen)
             return # ゲームオーバーの意味でmain関数から出る
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
-        # if key_lst[pg.K_UP]:
-        #     sum_mv[1] -= 5
-        # if key_lst[pg.K_DOWN]:
-        #     sum_mv[1] += 5
-        # if key_lst[pg.K_LEFT]:
-        #     sum_mv[0] -= 5
-        # if key_lst[pg.K_RIGHT]:
-        #     sum_mv[0] += 5
+
         for key, mv in DELTA.items():
             if key_lst[key]:
                 sum_mv[0] += mv[0]
