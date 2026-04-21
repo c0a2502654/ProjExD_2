@@ -63,6 +63,7 @@ def gameover(screen: pg.Surface) -> None:
 def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     """
     サイズと加速度が異なる爆弾のリストを生成する関数
+    戻り値：tuple[list[pg.Surface], list[int]]: (爆弾画像のリスト, 各爆弾の加速度倍率のリスト)
     """
     bb_imgs = []
     for r in range(1, 11):
@@ -79,6 +80,7 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
 def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
     """
     移動量タプルに応じたこうかとん画像の辞書を返す
+    戻り値：dict[tuple[int, int], pg.Surface]: (移動量X, 移動量Y)をキーとする画像の辞書。
     """
     kk_img_l = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_img_r = pg.transform.flip(kk_img_l, True, False)
