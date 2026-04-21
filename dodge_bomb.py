@@ -35,7 +35,7 @@ def gameover(screen: pg.Surface) -> None:
 
     go_img = pg.Surface((WIDTH, HEIGHT)) 
     pg.draw.rect(go_img, (0, 0, 0), (0, 0, WIDTH, HEIGHT))
-    go_img.set_alpha(150)
+    go_img.set_alpha(210)
     
     fonto = pg.font.Font(None, 80)
     txt = fonto.render("Game Over", True, (255, 255, 255))
@@ -57,6 +57,21 @@ def gameover(screen: pg.Surface) -> None:
     time.sleep(5)
     
 
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    """
+    サイズと加速度が異なる爆弾のリストを生成する関数
+    """
+    bb_imgs = []
+    for r in range(1, 11):
+        bb_img = pg.Surface((20 * r, 20 * r))
+        bb_img.set_colorkey((0, 0, 0))
+        pg.draw.circle(bb_img, (255, 0, 0), (10 * r, 10 * r), 10 * r)
+        bb_imgs.append(bb_img)
+
+    bb_accs = [a for a in range(1, 11)]
+    
+    return bb_imgs, bb_accs
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -71,7 +86,13 @@ def main():
     bb_rct = bb_img.get_rect()
     bb_rct.centerx = random.randint(0, WIDTH) # 爆弾の初期座標を設定する
     bb_rct.centery = random.randint(0, HEIGHT) # 爆弾の初期座標を設定する
-    vx,vy = +5,+5
+    vx,vy = +2,+2
+
+    bb_imgs, bb_accs = init_bb_imgs()
+    idx = 0
+    bb_img = bb_imgs[idx]
+    bb_rct = bb_img.get_rect()
+    bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
 
     clock = pg.time.Clock()
     tmr = 0
@@ -104,6 +125,16 @@ def main():
         if not tate: # 縦方向の判定
             vy *= -1
         screen.blit(bb_img, bb_rct) # 爆弾を表示
+
+        idx = min(tmr // 500, 9)
+        
+        bb_img = bb_imgs[idx]
+        bb_rct.width = bb_img.get_width()
+        bb_rct.height = bb_img.get_height()
+        avx = vx * bb_accs[idx]
+        avy = vy * bb_accs[idx]
+        bb_rct.move_ip(avx, avy)
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
