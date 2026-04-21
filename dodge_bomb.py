@@ -72,6 +72,28 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
     
     return bb_imgs, bb_accs
 
+
+def get_kk_imgs() -> dict[tuple[int, int], pg.Surface]:
+    """
+    移動量タプルに応じたこうかとん画像の辞書を返す
+    """
+    kk_img_l = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    kk_img_r = pg.transform.flip(kk_img_l, True, False)
+
+    kk_dict = {
+        ( 0,  0): kk_img_l,                            
+        (+5,  0): kk_img_r,                            # 右
+        (+5, -5): pg.transform.rotozoom(kk_img_r, 45, 1.0),  # 右上
+        ( 0, -5): pg.transform.rotozoom(kk_img_r, 90, 1.0),  # 上
+        (-5, -5): pg.transform.rotozoom(kk_img_l, -45, 1.0), # 左上
+        (-5,  0): kk_img_l,                            # 左
+        (-5, +5): pg.transform.rotozoom(kk_img_l, 45, 1.0),  # 左下
+        ( 0, +5): pg.transform.rotozoom(kk_img_r, -90, 1.0), # 下
+        (+5, +5): pg.transform.rotozoom(kk_img_r, -45, 1.0), # 右下
+    }
+    return kk_dict
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -93,6 +115,11 @@ def main():
     bb_img = bb_imgs[idx]
     bb_rct = bb_img.get_rect()
     bb_rct.center = random.randint(0, WIDTH), random.randint(0, HEIGHT)
+
+    kk_imgs = get_kk_imgs()
+    kk_img = kk_imgs[(0, 0)]
+    kk_rct = kk_img.get_rect()
+    kk_rct.center = 300, 200
 
     clock = pg.time.Clock()
     tmr = 0
@@ -134,6 +161,16 @@ def main():
         avx = vx * bb_accs[idx]
         avy = vy * bb_accs[idx]
         bb_rct.move_ip(avx, avy)
+
+        key_lst = pg.key.get_pressed()
+        sum_mv = [0, 0]
+        for key, mv in DELTA.items():
+            if key_lst[key]:
+                sum_mv[0] += mv[0]
+                sum_mv[1] += mv[1]
+        
+        if tuple(sum_mv) in kk_imgs:
+            kk_img = kk_imgs[tuple(sum_mv)]
 
         pg.display.update()
         tmr += 1
